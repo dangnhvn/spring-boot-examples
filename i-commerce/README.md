@@ -118,7 +118,8 @@ Retrieve user activities information base on given user
     }
 
 
-#Require Request Header for below endpoints
+# Require Request Header for below endpoints
+
 
 | Field                 | Type    | Description                                                 |
 |:----------------------|:--------|:------------------------------------------------------------|
