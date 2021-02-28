@@ -1,0 +1,1 @@
+INSERT INTO users (username, password, active) VALUES ('test', 'testpassword', true);

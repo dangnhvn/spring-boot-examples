@@ -20,11 +20,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.icommerce.constants.ErrorCode;
+import com.example.icommerce.dtos.ProductDTO;
 import com.example.icommerce.exceptions.ICommerceException;
 import com.example.icommerce.models.ObjectError;
-import com.example.icommerce.models.PagingRequest;
 import com.example.icommerce.models.PagingResponse;
-import com.example.icommerce.models.ProductDTO;
+import com.example.icommerce.models.ProductPagingRequest;
 import com.example.icommerce.models.ProductRequestModel;
 import com.example.icommerce.models.Response;
 import com.example.icommerce.services.ProductService;
@@ -38,7 +38,7 @@ public class ProductController {
 
     @GetMapping
     public PagingResponse<?> getProducts (
-        @Valid @ModelAttribute PagingRequest pagingRequest) {
+        @Valid @ModelAttribute ProductPagingRequest pagingRequest) {
         Page<ProductDTO> page = productService.getProducts(pagingRequest);
 
         return new PagingResponse<>(page, pagingRequest);

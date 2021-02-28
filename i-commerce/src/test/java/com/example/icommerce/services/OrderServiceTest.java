@@ -1,114 +1,90 @@
 package com.example.icommerce.services;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+
+import com.example.icommerce.dtos.OrderDTO;
+import com.example.icommerce.entities.Order;
+import com.example.icommerce.entities.User;
+import com.example.icommerce.models.PagingRequest;
 
 public class OrderServiceTest extends BaseServiceTest {
 
     @Autowired
     private OrderService orderService;
 
-    @BeforeEach
-    public void beforeEach() {
-        orderService.clearOrder();
+    @Autowired
+    private UserService userService;
+
+    @Test
+    public void testCreateOrderWithUsernameIsEmpty () {
+        User user = new User();
+        user.setUsername(null);
+
+        IllegalArgumentException exception = Assertions.assertThrows(
+            IllegalArgumentException.class,
+            () -> orderService.createOrder(user, null, ""));
+
+        Assertions.assertEquals("'username' parameter is empty", exception.getMessage());
     }
 
     @Test
-    public void testAddProduct () {
-        String sku = "ICMAIP000010";
-        orderService.addProduct(sku);
+    public void testCreateOrderSuccessfully () {
+        User user = userService.getUserByUsername("test");
+        Map<String, Integer> orderDetails = new HashMap<>();
+        orderDetails.put("ICMAIP000009", Integer.valueOf(10));
 
-        Assertions.assertEquals(1, orderService.getProductsInOrder().size());
+        Order order = orderService.createOrder(user, orderDetails, "");
+        Assertions.assertNotNull(order.getId());
     }
 
     @Test
-    public void testAddProductNotFound () {
-        String sku = "122312";
-        orderService.addProduct(sku);
+    public void testGetOrdersByUsername () {
+        String username = "test";
+        User user = userService.getUserByUsername(username);
+        Map<String, Integer> orderDetails = new HashMap<>();
+        orderDetails.put("ICMAIP000009", Integer.valueOf(10));
 
-        Assertions.assertEquals(0, orderService.getProductsInOrder().size());
-    }
+        Order order = orderService.createOrder(user, orderDetails, "");
+        Assertions.assertNotNull(order);
+        Assertions.assertNotNull(order.getId());
 
-    @Test
-    public void testAddMultipleProducts () {
-        addTestData();
-
-        Assertions.assertEquals(4, orderService.getProductsInOrder().size());
-    }
-
-    @Test
-    public void testAddMultipleProductsWithSameKey () {
-        addTestData();
-        String sku = "ICMAIP000010";
-        orderService.addProduct(sku);
-
-        Assertions.assertEquals(4, orderService.getProductsInOrder().size());
-        Assertions.assertEquals(2, orderService.getProductSkusInOrder().get(sku).intValue());
-    }
-
-    @Test
-    public void testRemoveProductNotFound() {
-        List<String> skus = Arrays.asList("ICMAIP000010");
-
-        for (String sku : skus ) {
-            orderService.addProduct(sku);
-        }
-
-        Assertions.assertEquals(1, orderService.getProductsInOrder().size());
-
-        orderService.removeProduct("123454647");
-        Assertions.assertEquals(1, orderService.getProductsInOrder().size());
-    }
-
-    @Test
-    public void testRemoveProduct () {
-
-        addTestData();
-        String sku = "ICMAIP000010";
-        orderService.addProduct(sku);
-
-        Assertions.assertEquals(4, orderService.getProductsInOrder().size());
-        Assertions.assertEquals(2, orderService.getProductSkusInOrder().get(sku).intValue());
-
-        orderService.removeProduct(sku);
-        Assertions.assertEquals(4, orderService.getProductsInOrder().size());
-
-        orderService.removeProduct(sku);
-        Assertions.assertEquals(3, orderService.getProductsInOrder().size());
-    }
-
-    @Test
-    public void testCheckout () {
-        addTestData();
-        Assertions.assertEquals(4, orderService.getProductsInOrder().size());
-
-        orderService.checkout();
-        Assertions.assertEquals(0, orderService.getProductsInOrder().size());
+        Page<OrderDTO> orders = orderService.getOrdersByUsername(username, new PagingRequest());
+        Assertions.assertNotNull(orders);
+        Assertions.assertEquals(2, orders.getTotalElements());
+        Assertions.assertEquals(order.getOrderNumber(), orders.getContent().get(1).getOrderNumber());
 
     }
 
     @Test
-    public void testGetTotalPrice () {
-        addTestData();
-        Assertions.assertEquals(4, orderService.getProductsInOrder().size());
+    public void testGetOrderByOrderNumberNull () {
+        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> orderService.getOrder(null));
 
-        Assertions.assertNotEquals(BigDecimal.ZERO, orderService.getTotalPrice());
+        Assertions.assertEquals("Order number is missing", exception.getMessage());
 
     }
 
-    private void addTestData() {
-        List<String> skus = Arrays.asList("ICMAIP000010", "ICMAIP000011", "ICMAIP000012", "ICMAIP000013");
+    @Test
+    public void testGetOrderByOrderNumber () {
 
-        for (String sku : skus ) {
-            orderService.addProduct(sku);
-        }
+        User user = userService.getUserByUsername("test");
+        Map<String, Integer> orderDetails = new HashMap<>();
+        orderDetails.put("ICMAIP000009", Integer.valueOf(10));
+
+        Order order = orderService.createOrder(user, orderDetails, "");
+        Assertions.assertNotNull(order.getId());
+
+        String orderNumber = order.getOrderNumber();
+
+        OrderDTO orderDTO = orderService.getOrderDetailDTO(orderNumber);
+        Assertions.assertNotNull(orderDTO);
+        Assertions.assertEquals(1, orderDTO.getDetails().size());
+        Assertions.assertEquals(10, orderDTO.getDetails().get(0).getQuantity());
+
     }
-
-
 }

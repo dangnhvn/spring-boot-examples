@@ -14,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
@@ -46,7 +47,7 @@ public class Product {
     @Column(name = "color")
     private String color;
 
-    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<ProductPrice> prices = new ArrayList<>();
 
@@ -60,6 +61,10 @@ public class Product {
 
     @Column(name = "active")
     private boolean active;
+
+    @OneToMany(mappedBy = "pk.product", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<OrderDetail> orderDetailList = new ArrayList<>();
 
     public Product () {
     }
@@ -88,6 +93,7 @@ public class Product {
         this.description = description;
     }
 
+    @Transient
     public void addProductPrice (@NotNull ProductPrice productPrice) {
         this.prices.add(productPrice);
         productPrice.setProduct(this);
@@ -149,6 +155,14 @@ public class Product {
         this.color = color;
     }
 
+    public List<OrderDetail> getOrderDetailList () {
+        return orderDetailList;
+    }
+
+    public void setOrderDetailList (List<OrderDetail> orderDetailList) {
+        this.orderDetailList = orderDetailList;
+    }
+
     @Override
     public String toString () {
         return "Product{" +
@@ -158,9 +172,11 @@ public class Product {
                ", description='" + description + '\'' +
                ", brand='" + brand + '\'' +
                ", color='" + color + '\'' +
+               ", prices=" + prices +
                ", createdDate=" + createdDate +
                ", modifiedDate=" + modifiedDate +
                ", active=" + active +
+               ", orderDetailList=" + orderDetailList +
                '}';
     }
 
@@ -169,7 +185,7 @@ public class Product {
         if ( this == o ) {
             return true;
         }
-        if ( !(o instanceof Product) ) {
+        if ( o == null || getClass() != o.getClass() ) {
             return false;
         }
         Product product = (Product) o;
@@ -182,11 +198,12 @@ public class Product {
                Objects.equals(color, product.color) &&
                Objects.equals(prices, product.prices) &&
                Objects.equals(createdDate, product.createdDate) &&
-               Objects.equals(modifiedDate, product.modifiedDate);
+               Objects.equals(modifiedDate, product.modifiedDate) &&
+               Objects.equals(orderDetailList, product.orderDetailList);
     }
 
     @Override
     public int hashCode () {
-        return Objects.hash(id, sku, name, description, brand, color, prices, createdDate, modifiedDate, active);
+        return Objects.hash(id, sku, name, description, brand, color, prices, createdDate, modifiedDate, active, orderDetailList);
     }
 }

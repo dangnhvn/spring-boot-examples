@@ -42,18 +42,85 @@ mvn spring-boot:run
 For more details, please check in the page: https://spring.io/guides/gs/spring-boot/
 
 ### API Definitions
+* [User](#users)
+  * [POST /api/users](#post-apiusers)
+  * [GET /api/users/activities](#get-apiusersactivities)
 * [Product](#products)
   * [POST /api/products](#post-apiproducts)
   * [PUT /api/products](#put-apiproducts)
   * [GET /api/products](#get-apiproducts)
   * [DELETE /api/products](#delete-apiproducts)
-* [Order](#orders)
-  * [GET /api/orders](#get-apiorders)
-  * [PUT /api/orders/add](#put-apiordersadd)
-  * [PUT /api/orders/remove](#put-apiordersremove)
-  * [GET /api/orders/checkout](#get-apiorderscheckout)
+* [Cart](#cart)
+  * [GET /api/cart](#get-apicart)
+  * [PUT /api/cart/add](#put-apicartadd)
+  * [PUT /api/cart/remove](#put-apicartremove)
+  * [GET /api/cart/checkout](#get-apicartcheckout)
+* [Orders](#orders)
+  * [Get /api/orders](#get-apiorders)
+
+# Users
+
+## POST /api/users
+
+Creates a user
+
+**Request fields**
+
+| Field          | Type    | Description                             |
+|:---------------|:--------|:----------------------------------------|
+| username*      | String  | The Unique Username                     |
+| password       | String  | The password                            |
+
+**Request example:**
+
+    {
+      "name": "userunique",
+      "password": "userpassword"
+    }
+
+**Response example:**
+
+    {
+      "data": {
+        "username": "test",
+        "active": true,
+        "createdDate": "2021-02-28 18:06:31",
+        "modifiedDate": "2021-02-28 18:06:31"
+      }
+    }
+
+## GET /api/users/activities
+
+Retrieve user activities information base on given user
+
+**Request header fields**
+
+| Field              | Type    | Description                      |
+|:-------------------|:--------|:---------------------------------|
+| X-Test-IdentityID  | String  | The username                     |
+
+**Request example:**
+
+    {
+      "X-Test-IdentityID": "user"
+    }
+
+**Response example**
+
+    {
+      "data": [
+        {
+          "api": "/api/cart/add",
+          "method": "PUT",
+          "query": "productSku=sku"
+        }
+      ]
+    }
+
+
   
-#Require Request Header
+#Require Request Header for below endpoints
+
 | Field                 | Type    | Description                                                 |
 |:----------------------|:--------|:------------------------------------------------------------|
 | X-Test-IdentityID     | String  | The username to track activities                            |
@@ -238,11 +305,11 @@ Delete a product
       "status": "SUCCEED",
     }
 
-# Orders
+# Cart
 
-## GET /api/orders
+## GET /api/cart
 
-Get Orders
+View cart information
 
 **Request fields**
 
@@ -257,9 +324,9 @@ Get Orders
       }
     }
 
-## PUT /api/orders/add
+## PUT /api/cart/add
 
-Put a product into Order
+Put a product into Cart
 
 **Request fields**
 
@@ -270,7 +337,7 @@ Put a product into Order
 **Request example:**
 
     {
-      "sku": "ICMIPH000001"
+      "productSku": "ICMIPH000001"
     }
 
 **Response example:**
@@ -295,9 +362,9 @@ Put a product into Order
       }
     }
 
-## PUT /api/orders/remove
+## PUT /api/cart/remove
 
-Remove a product out of Order
+Remove a product out of Cart
 
 **Request fields**
 
@@ -308,7 +375,7 @@ Remove a product out of Order
 **Request example:**
 
     {
-      "sku": "ICMIPH000001"
+      "productSku": "ICMIPH000001"
     }
 
 **Response example:**
@@ -320,11 +387,11 @@ Remove a product out of Order
       }
     }
 
-## GET /api/orders/checkout
+## GET /api/cart/checkout
 
-Checkout an Order
+Checkout. This will create an order
 
-**Request fields**
+**Request header fields**
 
 | Field              | Type    | Description                      |
 |:-------------------|:--------|:---------------------------------|
@@ -340,20 +407,70 @@ Checkout an Order
 
     {
       "data": {
-        "total": "10000300.0",
-        "order": [
-          "product": {
-            "sku": "ICMIPH000001",
-            "name": "Iphone",
-            "description": "Iphone",
-            "brand": "Apple",
-            "color": "White",
-            "price": 10000300,
-            "active": true,
-            "createdDate": "2020-10-10 00:00:00",
-            "modifiedDate": "2020-10-11 00:00:00"
-          },
-          "quantity": 1
-        ]
+        "orderNumber": "ICM000000002",
+        "status": "PROCESSING",
+        "details": [
+          {
+            "product": {
+              "sku": "ICMAIP000003",
+              "name": "Iphone 31",
+              "description": "This is description of Iphone 31",
+              "brand": "Apple",
+              "color": "Brown",
+              "price": 6216.0,
+              "active": true,
+              "createdDate": "2021-02-28 16:40:09",
+              "modifiedDate": "2021-02-28 16:40:09"
+            },
+            "quantity": 3
+          }
+        ],
+        "total": 18648
       }
+    }
+
+# Orders
+
+## GET /api/orders
+
+Retrieve order information base on given user
+
+**Request header fields**
+
+| Field              | Type    | Description                      |
+|:-------------------|:--------|:---------------------------------|
+| X-Test-IdentityID  | String  | The username                     |
+
+**Request example:**
+
+    {
+      "X-Test-IdentityID": "user"
+    }
+
+**Response example:**
+
+    {
+      "data": [
+        {
+        "orderNumber": "ICM000000002",
+        "status": "PROCESSING",
+        "details": [
+          {
+           "product": {
+              "sku": "ICMAIP000003",
+              "name": "Iphone 87",
+              "description": "This is description of Iphone 87",
+              "brand": "Apple",
+              "color": "Orange",
+              "price": 4219.0,
+              "active": true,
+              "createdDate": "2021-02-28 17:55:23",
+              "modifiedDate": "2021-02-28 17:55:23"
+            },
+            "quantity": 2
+          }
+        ],
+        "total": 8438
+        }
+      ]
     }

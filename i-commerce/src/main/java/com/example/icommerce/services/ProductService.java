@@ -20,12 +20,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.example.icommerce.dtos.ProductDTO;
 import com.example.icommerce.entities.Product;
 import com.example.icommerce.entities.ProductPrice;
 import com.example.icommerce.exceptions.ICommerceException;
-import com.example.icommerce.models.PagingRequest;
-import com.example.icommerce.models.ProductDTO;
+import com.example.icommerce.mappers.ProductMapper;
+import com.example.icommerce.models.ProductPagingRequest;
 import com.example.icommerce.models.ProductRequestModel;
 import com.example.icommerce.repositories.ProductPriceRepository;
 import com.example.icommerce.repositories.ProductRepository;
@@ -33,6 +35,7 @@ import com.example.icommerce.utilities.ProductSpecification;
 import com.example.icommerce.utilities.SkuGenerator;
 
 @Service
+@Transactional
 public class ProductService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ProductService.class);
 
@@ -59,7 +62,7 @@ public class ProductService {
         return productPrices.stream().min((t0, t1) -> t1.getModifiedDate().compareTo(t0.getModifiedDate())).orElse(null);
     }
 
-    public Page<ProductDTO> getProducts (PagingRequest pagingRequest) {
+    public Page<ProductDTO> getProducts (ProductPagingRequest pagingRequest) {
         Pageable pageable;
 
         if ( StringHelper.isEmpty(pagingRequest.getSortBy()) ) {
@@ -75,27 +78,10 @@ public class ProductService {
         }
 
         Page<Product> productPages = productRepository.findAll(buildFilter(pagingRequest), pageable);
-        List<ProductDTO> productDTOs = productPages.getContent().stream().map(this::convertToDTO).collect(Collectors.toList());
+        List<ProductDTO> productDTOs = productPages.getContent().stream().map(ProductMapper.INSTANCE::toDTO).collect(Collectors.toList());
 
         return new PageImpl<>(productDTOs, pageable, productPages.getTotalElements());
 
-    }
-
-    private ProductDTO convertToDTO (Product product) {
-        ProductPrice productPrice = getLatestPrice(product.getSku());
-
-        ProductDTO dto = new ProductDTO();
-        dto.setSku(product.getSku());
-        dto.setName(product.getName());
-        dto.setDescription(product.getDescription());
-        dto.setBrand(product.getBrand());
-        dto.setColor(product.getColor());
-        dto.setActive(product.isActive());
-        dto.setCreatedDate(product.getCreatedDate());
-        dto.setModifiedDate(productPrice.getModifiedDate());
-        dto.setPrice(productPrice.getPrice());
-
-        return dto;
     }
 
     private Specification<Product> appendSpecification (Specification<Product> root, Specification<Product> child, boolean isOrPredicate) {
@@ -109,7 +95,7 @@ public class ProductService {
         return appendSpecification(root, child, false);
     }
 
-    private Specification<Product> buildFilter (PagingRequest pagingRequest) {
+    private Specification<Product> buildFilter (ProductPagingRequest pagingRequest) {
         Specification<Product> specification = null;
         if ( StringHelper.isNotEmpty(pagingRequest.getProductSku()) ) {
             specification = appendSpecification(specification, ProductSpecification.skuEqual(pagingRequest.getProductSku()));
@@ -149,7 +135,7 @@ public class ProductService {
 
         Product product = createProduct(sku, model.getName(), model.getDescription(), model.getBrand(), model.getColor(), model.getPrice());
 
-        return product.getId().intValue() > 0 ? this.convertToDTO(product) : null;
+        return product.getId().intValue() > 0 ? ProductMapper.INSTANCE.toDTO(product) : null;
     }
 
     public Product createProduct (String sku, String name, String description, String brand, String color, double price) {
@@ -218,7 +204,7 @@ public class ProductService {
             throw new IllegalArgumentException("'productSku' attribute must contain value");
         }
 
-        return productRepository.findBySku(sku).map(this::convertToDTO).orElse(null);
+        return productRepository.findBySku(sku).map(ProductMapper.INSTANCE::toDTO).orElse(null);
     }
 
     public boolean deleteProductBySku (@NotEmpty String productSku) {

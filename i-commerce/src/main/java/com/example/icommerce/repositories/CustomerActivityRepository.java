@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.example.icommerce.entities.CustomerActivity;
+import com.example.icommerce.entities.UserActivity;
 
-public interface CustomerActivityRepository extends JpaRepository<CustomerActivity, Long> {
+public interface CustomerActivityRepository extends JpaRepository<UserActivity, Long> {
 
-    List<CustomerActivity> findAllByUser_Username(String username);
+    List<UserActivity> findAllByUser_Username(String username);
 }

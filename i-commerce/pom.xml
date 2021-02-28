@@ -19,6 +19,8 @@
         <java.version>1.8</java.version>
         <hibernate.jpamodelgen.version>5.4.28.Final</hibernate.jpamodelgen.version>
         <jacoco.version>0.8.6</jacoco.version>
+        <org.projectlombok.version>1.18.12</org.projectlombok.version>
+        <org.mapstruct.version>1.4.0.Final</org.mapstruct.version>
     </properties>
 
     <dependencies>
@@ -46,6 +48,19 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${org.projectlombok.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${org.mapstruct.version}</version>
         </dependency>
 
         <dependency>
@@ -81,15 +96,35 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>build-info</id>
-                        <goals>
-                            <goal>build-info</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.2</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${org.mapstruct.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${org.projectlombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.hibernate</groupId>
+                            <artifactId>hibernate-jpamodelgen</artifactId>
+                            <version>${hibernate.jpamodelgen.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -114,6 +149,13 @@
                         <exclude>**/*Configuration.class</exclude>
                         <exclude>**/*Application.class</exclude>
                         <exclude>**/*ExceptionHandler.class</exclude>
+                        <exclude>**/entities/*</exclude>
+                        <exclude>**/dtos/*</exclude>
+                        <exclude>**/mappers/*</exclude>
+                        <exclude>**/models/*</exclude>
+                        <exclude>**/exceptions/*</exclude>
+                        <exclude>**/constants/*</exclude>
+                        <exclude>**/metamodels/*</exclude>
                     </excludes>
                 </configuration>
             </plugin>

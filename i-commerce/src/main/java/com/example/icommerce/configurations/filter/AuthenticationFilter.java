@@ -36,7 +36,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     public AuthenticationFilter (RestExceptionHandler restExceptionHandler, UserService userService) {
         this.restExceptionHandler = restExceptionHandler;
         this.userService = userService;
-        allowedEndpoints = Arrays.asList("/api/health", "/api/users");
+        allowedEndpoints = Arrays.asList("/h2", "/api/health", "/api/users");
     }
 
 

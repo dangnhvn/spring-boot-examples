@@ -5,10 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
+import com.example.icommerce.dtos.ProductDTO;
 import com.example.icommerce.entities.ProductPrice;
 import com.example.icommerce.exceptions.ICommerceException;
-import com.example.icommerce.models.PagingRequest;
-import com.example.icommerce.models.ProductDTO;
+import com.example.icommerce.models.ProductPagingRequest;
 import com.example.icommerce.models.ProductRequestModel;
 
 public class ProductServiceTest extends BaseServiceTest {
@@ -111,7 +111,7 @@ public class ProductServiceTest extends BaseServiceTest {
 
     @Test
     public void testGetProductsWithLimit () {
-        PagingRequest paging = new PagingRequest();
+        ProductPagingRequest paging = new ProductPagingRequest();
         paging.setLimit(10);
 
         Page<ProductDTO> dtoPages = productService.getProducts(paging);
@@ -123,7 +123,7 @@ public class ProductServiceTest extends BaseServiceTest {
 
     @Test
     public void testGetProductsWithFilter () {
-        PagingRequest paging = new PagingRequest();
+        ProductPagingRequest paging = new ProductPagingRequest();
         paging.setLimit(10);
         paging.setName("Product");
         paging.setColor("Color");
@@ -138,7 +138,7 @@ public class ProductServiceTest extends BaseServiceTest {
 
     @Test
     public void testGetProductsWithFilterProductSku () {
-        PagingRequest paging = new PagingRequest();
+        ProductPagingRequest paging = new ProductPagingRequest();
         paging.setProductSku("ICMAIP000009");
 
         Page<ProductDTO> dtoPages = productService.getProducts(paging);

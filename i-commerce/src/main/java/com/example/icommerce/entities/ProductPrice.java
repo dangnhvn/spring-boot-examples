@@ -1,5 +1,6 @@
 package com.example.icommerce.entities;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -20,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "product_prices")
-public class ProductPrice {
+public class ProductPrice implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

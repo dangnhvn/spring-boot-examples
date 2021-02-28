@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.example.icommerce.entities.CustomerActivity;
+import com.example.icommerce.entities.UserActivity;
 import com.example.icommerce.entities.User;
 import com.example.icommerce.models.UserRequestModel;
 
@@ -63,7 +63,7 @@ public class UserServiceTest extends BaseServiceTest {
         String method   = "method";
         String query    = "query";
 
-        CustomerActivity activity = userService.createCustomerActivity(username, api, method, query);
+        UserActivity activity = userService.createCustomerActivity(username, api, method, query);
         Assertions.assertNotNull(activity);
         Assertions.assertNotEquals(Long.valueOf(0), activity.getId());
 
@@ -77,7 +77,7 @@ public class UserServiceTest extends BaseServiceTest {
         String query    = "query";
 
         for (int i = 0; i < 10; i++) {
-            CustomerActivity activity = userService.createCustomerActivity(username, api, method, query);
+            UserActivity activity = userService.createCustomerActivity(username, api, method, query);
             Assertions.assertNotNull(activity);
             Assertions.assertNotEquals(Long.valueOf(0), activity.getId());
         }

@@ -3,20 +3,25 @@ package com.example.icommerce.services;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.validation.constraints.NotEmpty;
 
 import org.hibernate.internal.util.StringHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.example.icommerce.entities.CustomerActivity;
+import com.example.icommerce.dtos.UserActivityDTO;
+import com.example.icommerce.entities.UserActivity;
 import com.example.icommerce.entities.User;
+import com.example.icommerce.mappers.UserHistoryMapper;
 import com.example.icommerce.models.UserRequestModel;
 import com.example.icommerce.repositories.CustomerActivityRepository;
 import com.example.icommerce.repositories.UserRepository;
 
 @Service
+@Transactional
 public class UserService {
 
     @Autowired
@@ -25,10 +30,10 @@ public class UserService {
     @Autowired
     private CustomerActivityRepository activityRepository;
 
-    public CustomerActivity createCustomerActivity (@NotEmpty String username, @NotEmpty String api, @NotEmpty String method, String query) {
+    public UserActivity createCustomerActivity (@NotEmpty String username, @NotEmpty String api, @NotEmpty String method, String query) {
         User user = getUserByUsername(username);
         if(user != null) {
-            CustomerActivity customerActivity = new CustomerActivity();
+            UserActivity customerActivity = new UserActivity();
             customerActivity.setApi(api);
             customerActivity.setMethod(method);
             customerActivity.setQuery(query);
@@ -43,8 +48,8 @@ public class UserService {
         return null;
     }
 
-    public List<CustomerActivity> getAllActivities (@NotEmpty(message = "username must contain value") String username) {
-        return activityRepository.findAllByUser_Username(username);
+    public List<UserActivityDTO> getAllActivities (@NotEmpty(message = "username must contain value") String username) {
+        return activityRepository.findAllByUser_Username(username).stream().map(UserHistoryMapper.INSTANCE::toDTO).collect(Collectors.toList());
     }
 
     public User getUserByUsername (String username) {

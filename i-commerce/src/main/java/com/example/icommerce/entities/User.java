@@ -1,6 +1,7 @@
 package com.example.icommerce.entities;
 
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -22,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,7 +51,11 @@ public class User {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonManagedReference
-    private List<CustomerActivity> customerActivities = new ArrayList<>();
+    private List<UserActivity> customerActivities = new ArrayList<>();
+
+//    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+//    @JsonManagedReference
+//    private List<Order> orders = new ArrayList<>();
 
     public Long getId () {
         return id;
@@ -99,13 +105,35 @@ public class User {
         this.modifiedDate = modifiedDate;
     }
 
-    public List<CustomerActivity> getCustomerActivities () {
+    @JsonIgnore
+    public List<UserActivity> getCustomerActivities () {
         return customerActivities;
     }
 
-    public void setCustomerActivities (List<CustomerActivity> customerActivities) {
+    public void setCustomerActivities (List<UserActivity> customerActivities) {
         this.customerActivities = customerActivities;
     }
+
+    @Transient
+    public void addActivity (UserActivity customerActivity) {
+        this.customerActivities.add(customerActivity);
+        customerActivity.setUser(this);
+    }
+
+//    @Transient
+//    public void addOrder (Order order) {
+//        order.setUser(this);
+//        this.getOrders().add(order);
+//    }
+//
+//    @JsonIgnore
+//    public List<Order> getOrders () {
+//        return orders;
+//    }
+//
+//    public void setOrders (List<Order> orders) {
+//        this.orders = orders;
+//    }
 
     @Override
     public boolean equals (Object o) {
@@ -128,10 +156,5 @@ public class User {
     @Override
     public int hashCode () {
         return Objects.hash(id, username, password, active, createdDate, modifiedDate, customerActivities);
-    }
-
-    public void addActivity (CustomerActivity customerActivity) {
-        this.customerActivities.add(customerActivity);
-        customerActivity.setUser(this);
     }
 }
