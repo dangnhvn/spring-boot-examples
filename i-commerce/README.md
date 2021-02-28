@@ -118,14 +118,13 @@ Retrieve user activities information base on given user
     }
 
 
-  
 #Require Request Header for below endpoints
 
 | Field                 | Type    | Description                                                 |
 |:----------------------|:--------|:------------------------------------------------------------|
 | X-Test-IdentityID     | String  | The username to track activities                            |
 
-  
+
 # Products
 
 ## POST /api/products
